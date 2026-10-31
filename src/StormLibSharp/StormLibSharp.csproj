@@ -12,4 +12,8 @@
     <None Include="..\..\lib\StormLib.dll" Link="StormLib.dll" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CascLibSharp\CascLibSharp.csproj" />
+  </ItemGroup>
+
 </Project>

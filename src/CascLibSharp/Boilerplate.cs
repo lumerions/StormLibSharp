@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
-namespace CascBoilerplates;
+namespace Boilerplates;
 
 public class Boilerplate
 {
@@ -13,7 +13,11 @@ public class Boilerplate
             action();
         } catch (Win32Exception)
         {
-            Console.WriteLine($"Win32 exception: {Marshal.GetLastWin32Error()}");
+            var err = Marshal.GetLastWin32Error();
+            Console.WriteLine($"LOG: Win32 error ({err}).");
+        } catch (Exception ex)
+        {
+            Console.WriteLine($"LOG: Read error ({ex.Message}).");
         }
     }
 }

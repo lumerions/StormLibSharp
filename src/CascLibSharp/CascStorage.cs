@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using CascNativeMethods;
-using CascBoilerplates;
+using Boilerplates;
 using CascModels;
 
 namespace CascStorageHandler;
@@ -247,7 +247,10 @@ public class CascStorage : IDisposable
 
         if (_handleStorage != IntPtr.Zero)
         {
-            NativeMethods.CascCloseStorage(_handleStorage);
+            Boilerplate.MainBoilerplate(() =>
+            {
+                NativeMethods.CascCloseStorage(_handleStorage);
+            });
             _handleStorage = IntPtr.Zero;
         }
 
