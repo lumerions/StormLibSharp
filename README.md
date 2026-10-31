@@ -1,14 +1,9 @@
-*Please note that while I work for Blizzard Entertainment, this project was developed 
-on my personal time before I worked for Blizzard. This project does not constitute an 
-official documentation of the MPQ or CASC storage container formats, nor is it an 
-official mechanism by which to do data-mining. --@robpaveza, 1 Feb. 2016*
+*Heavily inspired based off on https://github.com/robpaveza/stormlibsharp C# wrapper for StormLib and cascLib, this is a modern reimplementation of that repo.*
 
 StormLibSharp and CascLibSharp
 =============
 
 C# wrappers for Ladislav Zezula's [StormLib](https://github.com/ladislav-zezula/StormLib) and [CascLib](https://github.com/ladislav-zezula/CascLib).
-
-*Note: Because MPQ is no longer being used, StormLibSharp is no longer being maintained.  I will accept pull requests if there is interest or demonstrable fixes.  However, my primary focus will be on supporting CascLibSharp and bringing changes online as CascLib evolves.* 
 
 ## What do StormLib and CascLib do? ##
 If you don't know, why are you even using this?  StormLib is a utility library for reading and writing MPQ files, the archive file format that were used in Blizzard games until World of Warcraft: Warlords of Draenor.  In Warlords, Blizzard switched their file storage format to CASC ([Content Addressable Storage Container](http://wow.gamepedia.com/Content_Addressable_Storage_Container)), which has a number of benefits.
