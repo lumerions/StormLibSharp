@@ -6,6 +6,7 @@ using StormLibSharpNative;
 using System.Buffers;
 using System.ComponentModel;
 using Boilerplates;
+using StormLibSharpModels;
 
 namespace StormLibSharpModernMpq;
 
@@ -14,6 +15,10 @@ public class MpqArchiveModern : IDisposable
     private IntPtr _loadedPtr = IntPtr.Zero;
     private bool _disposed = false;
     private readonly uint STREAM_FLAG_READ_ONLY = 0x00000100;
+    public MpqArchiveModern (string MPQArchivePath, bool ReadOnly)
+    {
+        OpenArchive(MPQArchivePath, ReadOnly);
+    }
     public IntPtr OpenArchive (string MPQArchivePath, bool ReadOnly)
     {
         NativeMethods.SFileOpenArchive(MPQArchivePath, 0, ReadOnly == true ? STREAM_FLAG_READ_ONLY : 0, out IntPtr MpqH);
@@ -177,6 +182,34 @@ public class MpqArchiveModern : IDisposable
         return success;
     }
 
+    public (bool, uint?) FileGetFileInfo (IntPtr mpqH, _SFileInfoClass infoClass)
+    {
+        uint bytesNeeded = 0;
+        bool success = true;
+        var bufferSize = sizeof(uint);
+        uint? result = null;
+
+        IntPtr buffer = Marshal.AllocHGlobal(bufferSize);
+
+        try {
+            Boilerplate.MainBoilerplate(() =>
+            {
+                success = NativeMethods.SFileGetFileInfo(mpqH, infoClass, buffer, (uint) bufferSize, out bytesNeeded);
+                result = (uint) Marshal.ReadInt32(buffer);
+            });
+        } finally
+        {
+            Marshal.FreeHGlobal(buffer);
+        }
+
+        return (success, result);
+    }
+
+    public IntPtr GetLoadedIntPtr ()
+    {
+        return _loadedPtr;
+    }
+
     public void Dispose ()
     {
         if (_disposed) {
@@ -186,6 +219,7 @@ public class MpqArchiveModern : IDisposable
         if (_loadedPtr != IntPtr.Zero)
         {
             NativeMethods.SFileCloseArchive(_loadedPtr);
+            _loadedPtr = IntPtr.Zero;
         }
 
         _disposed = true;

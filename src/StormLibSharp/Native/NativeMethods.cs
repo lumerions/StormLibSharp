@@ -1,10 +1,12 @@
 using System.Runtime.InteropServices;
+using StormLibSharpModels;
 
 namespace StormLibSharpNative;
 
 public class NativeMethods {
+    [DllImport("StormLib.dll", CharSet = CharSet.Ansi, SetLastError = true)][return: MarshalAs(UnmanagedType.U1)] public static extern bool SFileGetFileInfo(IntPtr hMpq, _SFileInfoClass infoClass, IntPtr pvFileInfo,  uint cbFileInfo, out uint pcbLengthNeeded);
     [DllImport("StormLib.dll", CharSet = CharSet.Ansi, SetLastError = true)][return: MarshalAs(UnmanagedType.U1)] public static extern bool SFileUpdateFileAttributes(IntPtr hMpq, string szFileName);
-    [DllImport("StormLib.dll", CharSet = CharSet.Ansi, SetLastError = true)][return: MarshalAs(UnmanagedType.U4)] public static extern bool SFileSetAttributes(IntPtr h, uint dwFlags);
+    [DllImport("StormLib.dll", CharSet = CharSet.Ansi, SetLastError = true)][return: MarshalAs(UnmanagedType.U1)] public static extern bool SFileSetAttributes(IntPtr h, uint dwFlags);
     [DllImport("StormLib.dll", CharSet = CharSet.Ansi, SetLastError = true)][return: MarshalAs(UnmanagedType.U4)] public static extern uint SFileGetAttributes(IntPtr h);
     [DllImport("StormLib.dll", CharSet = CharSet.Ansi, SetLastError = true)][return: MarshalAs(UnmanagedType.U1)] public static extern bool SFileOpenArchive(string path, uint prio, uint flags, out IntPtr h);
     [DllImport("StormLib.dll", CharSet = CharSet.Ansi, SetLastError = true)][return: MarshalAs(UnmanagedType.U1)] public static extern bool SFileAddFileEx(IntPtr h, string disk, string name, uint flags, uint comp, uint comp2);
