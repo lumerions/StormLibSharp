@@ -1,5 +1,17 @@
 namespace StormLibSharpModels;
 
+public struct FileEnumerateItem
+{
+    public IntPtr handleFile { get; set; }
+    public string handleName { get; set; }
+
+    public FileEnumerateItem (IntPtr hFile, string hName)
+    {
+        handleFile = hFile;
+        handleName = hName;
+    }
+}
+
 [Flags]
 public enum DwSearchScope : uint
 {

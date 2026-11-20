@@ -11,6 +11,10 @@ public class CascStorage : IDisposable
     private IntPtr _handleStorage = IntPtr.Zero;
     private bool _disposed = false;
     private List<IntPtr> _openFiles = new();
+    ~CascStorage ()
+    {
+        Dispose();
+    }
 
     public CascStorage (string cascStoragePath)
     {
@@ -263,6 +267,7 @@ public class CascStorage : IDisposable
             });
         }
 
+        GC.SuppressFinalize(this);
         _openFiles.Clear();
         _disposed = true;
     }

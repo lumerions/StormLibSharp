@@ -15,32 +15,44 @@ public class MpqArchiveModern : IDisposable
     private IntPtr _loadedPtr = IntPtr.Zero;
     private bool _disposed = false;
     private readonly uint STREAM_FLAG_READ_ONLY = 0x00000100;
+
+    ~MpqArchiveModern() 
+    {
+        Dispose();
+    }
+
     public MpqArchiveModern (string MPQArchivePath, bool ReadOnly)
     {
         OpenArchive(MPQArchivePath, ReadOnly);
     }
+
     public IntPtr OpenArchive (string MPQArchivePath, bool ReadOnly)
     {
-        NativeMethods.SFileOpenArchive(MPQArchivePath, 0, ReadOnly == true ? STREAM_FLAG_READ_ONLY : 0, out IntPtr MpqH);
-        _loadedPtr = MpqH;
-        return MpqH;
+        NativeMethods.SFileOpenArchive(MPQArchivePath, 0, ReadOnly == true ? STREAM_FLAG_READ_ONLY : 0, out IntPtr mpqH);
+        _loadedPtr = mpqH;
+        return mpqH;
     }
 
-    public void CloseArchive (IntPtr MpqH)
+    public void CloseArchive (IntPtr mpqH)
     {
-        Boilerplate.MainBoilerplate(() =>
+        try {
+            Boilerplate.MainBoilerplate(() =>
+            {
+                NativeMethods.SFileCloseArchive(mpqH);
+            });
+        } finally
         {
-            NativeMethods.SFileCloseArchive(MpqH);
-        });
+            _loadedPtr = IntPtr.Zero;
+        }
     }
 
-    public string ReadFile (IntPtr MpqH, string InternalFileName)
+    public string ReadFile (IntPtr mpqH, string internalFileName)
     {
         byte[]? buffer = null;
         IntPtr currenthFile = IntPtr.Zero;
         try {
             uint bytesRead;
-            if (!NativeMethods.SFileOpenFileEx(MpqH, InternalFileName, 0, out IntPtr hFile))
+            if (!NativeMethods.SFileOpenFileEx(mpqH, internalFileName, 0, out IntPtr hFile))
             {
                 return "";
             }
@@ -87,10 +99,10 @@ public class MpqArchiveModern : IDisposable
         }
     }
 
-    public void ReadFileAndWriteToDisk (IntPtr MpqH, string InternalFileName, byte[] buffer, string WriteLocation)
+    public void ReadFileAndWriteToDisk (IntPtr mpqH, string InternalFileName, byte[] buffer, string WriteLocation)
     {
         var WritePath = Path.Combine(WriteLocation, InternalFileName);
-        var TextContent = ReadFile(MpqH, InternalFileName);
+        var TextContent = ReadFile(mpqH, InternalFileName);
         File.WriteAllText(WritePath, TextContent);
     }
 
@@ -205,6 +217,31 @@ public class MpqArchiveModern : IDisposable
         return (success, result);
     }
 
+    public List<FileEnumerateItem> EnumerateFiles (IntPtr mpqH)
+    {
+        var enumerateFiles = new List<FileEnumerateItem>();
+
+        Boilerplate.MainBoilerplate(() =>
+        {
+            foreach (var rawLine in ReadFile(mpqH, "(listfile)").AsSpan().EnumerateLines())
+            {
+                if (rawLine.SequenceEqual(string.Empty)) continue;
+                var line = rawLine.ToString();
+                if (NativeMethods.SFileOpenFileEx(mpqH, line, 0, out IntPtr hFile))
+                {
+                    enumerateFiles.Add(new FileEnumerateItem(hFile, line));
+
+                    if (hFile != IntPtr.Zero)
+                    {
+                        NativeMethods.SFileCloseFile(hFile);
+                    }
+                }
+            }
+        });
+       
+        return enumerateFiles;
+    }
+
     public IntPtr GetLoadedIntPtr ()
     {
         return _loadedPtr;
@@ -222,6 +259,7 @@ public class MpqArchiveModern : IDisposable
             _loadedPtr = IntPtr.Zero;
         }
 
+        GC.SuppressFinalize(this);
         _disposed = true;
     }
 }
